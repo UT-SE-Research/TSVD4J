@@ -1,0 +1,23 @@
+tsvd4j/listener/TestListener.java:package edu.utexas.ece.tsvd4j.listener;
+tsvd4j/listener/TestListener.java:import edu.utexas.ece.tsvd4j.agent.InterceptionPoint;
+tsvd4j/listener/TestListener.java:import edu.utexas.ece.tsvd4j.agent.Utility;
+tsvd4j/listener/TestListener.java:        writeTo(Paths.get(curDir, ".tsvd4j", "listener.log").toString(),
+tsvd4j/listener/TestListener.java:        writeTo(Paths.get(curDir, ".tsvd4j", "listener.log").toString(),
+tsvd4j/listener/TestListener.java:                writeTo(Paths.get(curDir, ".tsvd4j", "listener.log").toString(), conflictingPair + "\n");
+tsvd4j/listener/TestListener.java:                writeTo(Paths.get(curDir, ".tsvd4j", testName).toString(), conflictingPair + "\n");
+tsvd4j/agent/InterceptionPoint.java:package edu.utexas.ece.tsvd4j.agent;
+tsvd4j/agent/Utility.java:package edu.utexas.ece.tsvd4j.agent;
+tsvd4j/agent/Helper.java:package edu.utexas.ece.tsvd4j.agent;
+tsvd4j/agent/Proxy.java:package edu.utexas.ece.tsvd4j.agent;
+tsvd4j/agent/Agent.java:package edu.utexas.ece.tsvd4j.agent;
+tsvd4j/agent/Agent.java:        final String[] blackList = new String[]{"java.", "javax.", "sun.", "com.sun.", "jdk.", "org.xml.sax.", "net.bytebuddy.", "org.mockito.", "org.omg.CORBA.", "org.omg.CORBA_2_3.", "org.omg.CosNaming.", "org.omg.SendingContext.", "org.omg.stub.java.rmi.", "org.objenesis.", "org.mockito.", "com.google.", "org.apache.maven.", "org.apache.logging.", "org.eclipse.jetty.", "org.slf4j.", "org.junit.", "org.hamcrest.", "junit.", "sunw.io.", "sunw.util.", "edu.utexas.ece.tsvd4j."};
+tsvd4j/agent/Agent.java:                    	writeTo(curDir + "/.tsvd4j/Conflicting-Pairs.txt", conflictingPair + "\n");
+tsvd4j/agent/Pair.java:package edu.utexas.ece.tsvd4j.agent;
+tsvd4j/agent/ClassTracer.java:package edu.utexas.ece.tsvd4j.agent;
+tsvd4j/agent/ClassTracer.java:                                super.visitMethodInsn(Opcodes.INVOKESTATIC, "edu/utexas/ece/tsvd4j/agent/Proxy", "setVariables", proxyMethodSignature, false);
+tsvd4j/agent/ClassTracer.java:                                super.visitMethodInsn(Opcodes.INVOKESTATIC, "edu/utexas/ece/tsvd4j/agent/Proxy", "readVariables", proxyMethodSignature, false);
+tsvd4j/agent/ClassTracer.java:                            super.visitMethodInsn(Opcodes.INVOKESTATIC, "edu/utexas/ece/tsvd4j/agent/Proxy", "getFieldVariables", proxyMethodSignature, false);
+tsvd4j/agent/ClassTracer.java:                                super.visitMethodInsn(Opcodes.INVOKESTATIC, "edu/utexas/ece/tsvd4j/agent/Proxy", "putFieldVariables", proxyMethodSignature, false);
+tsvd4j/agent/ClassTracer.java:                                super.visitMethodInsn(Opcodes.INVOKESTATIC, "edu/utexas/ece/tsvd4j/agent/Proxy", "putFieldVariables", proxyMethodSignature, false);
+tsvd4j/agent/ClassTracer.java:                        super.visitMethodInsn(Opcodes.INVOKESTATIC, "edu/utexas/ece/tsvd4j/agent/Proxy", name, proxyMethodSignature, false);
+tsvd4j/agent/Operation.java:package edu.utexas.ece.tsvd4j.agent;
