@@ -15,6 +15,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.TypePath;
@@ -26,6 +27,7 @@ public class ClassTracer extends ClassVisitor {
 
     static BufferedReader reader;
     static List<String> listAPI;
+    static List<String> listVolatile;
     static int field_status=1;
     static int api_status=1;
 
@@ -40,7 +42,6 @@ public class ClassTracer extends ClassVisitor {
     }
 
     public static void loadFile() {
-
         if(System.getProperty("field") != null) {
             field_status=1;
             api_status = 0;
@@ -74,10 +75,18 @@ public class ClassTracer extends ClassVisitor {
     }
 
     static {
-
-
+        listVolatile = new ArrayList<String>();
         loadFile();
     }
+		
+    @Override
+    public FieldVisitor visitField(int access, java.lang.String name, java.lang.String descriptor, java.lang.String signature, java.lang.Object value) {
+        if ((access & Opcodes.ACC_VOLATILE) != 0) {
+            //System.out.println("Got volatile opcode="+ access  +"," + name + ", " + descriptor + ","+signature + ","+value);
+            listVolatile.add(name);
+        }
+        return super.visitField(access, name, descriptor, signature,value);
+   	} 
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
@@ -96,51 +105,53 @@ public class ClassTracer extends ClassVisitor {
 
                 if(field_status == 1) {
                     // Ignore fields of java/lang/System
-                    if (!"java/lang/System".equals(owner)) {
-                        if (opcode == Opcodes.PUTSTATIC || opcode == Opcodes.GETSTATIC) {
-                            super.visitLdcInsn(name + owner);
-                            super.visitLdcInsn(lineNumber);
-                            super.visitLdcInsn(cn);
-                            String proxyMethodSignature = "(Ljava/lang/String;"+"ILjava/lang/String;)V";
-                            if (opcode == Opcodes.PUTSTATIC) {
-                                super.visitMethodInsn(Opcodes.INVOKESTATIC, "edu/utexas/ece/tsvd4j/agent/Proxy", "setVariables", proxyMethodSignature, false);
-                            } else {
-                                super.visitMethodInsn(Opcodes.INVOKESTATIC, "edu/utexas/ece/tsvd4j/agent/Proxy", "readVariables", proxyMethodSignature, false);
-                            }
-                        // Only track instance field accesses in non-constructor
-                        } else if (opcode == Opcodes.GETFIELD && (!"<init>".equals(methodName))) {
-                            super.visitInsn(Opcodes.DUP);
-                            super.visitLdcInsn(name + owner);
-                            super.visitLdcInsn(lineNumber);
-                            super.visitLdcInsn(cn);
-                            String methodDescriptor = Type.getMethodDescriptor(Type.VOID_TYPE, new Type[] { Type.getMethodType(descriptor) });
-                            String proxyMethodSignature = "(Ljava/lang/Object;Ljava/lang/String;ILjava/lang/String;)V";
-                            super.visitMethodInsn(Opcodes.INVOKESTATIC, "edu/utexas/ece/tsvd4j/agent/Proxy", "getFieldVariables", proxyMethodSignature, false);
-                        // Only track instance field accesses in non-constructor
-                        } else if (opcode == Opcodes.PUTFIELD && (!"<init>".equals(methodName))) {
-                            String proxyMethodSignature = "(Ljava/lang/Object;Ljava/lang/String;ILjava/lang/String;)V";
-                            // Deal with multiple slots on top of stack if long or double
-                            if (descriptor.equals("J") || descriptor.equals("D")) {
-                                super.visitInsn(Opcodes.DUP2_X1);
-                                super.visitInsn(Opcodes.POP2);
+                    if (! listVolatile.contains(name)) {
+                        if (!"java/lang/System".equals(owner)) {
+                            if (opcode == Opcodes.PUTSTATIC || opcode == Opcodes.GETSTATIC) {
+                                super.visitLdcInsn(name + owner);
+                                super.visitLdcInsn(lineNumber);
+                                super.visitLdcInsn(cn);
+                                String proxyMethodSignature = "(Ljava/lang/String;"+"ILjava/lang/String;)V";
+                                if (opcode == Opcodes.PUTSTATIC) {
+                                    super.visitMethodInsn(Opcodes.INVOKESTATIC, "edu/utexas/ece/tsvd4j/agent/Proxy", "setVariables", proxyMethodSignature, false);
+                                } else {
+                                    super.visitMethodInsn(Opcodes.INVOKESTATIC, "edu/utexas/ece/tsvd4j/agent/Proxy", "readVariables", proxyMethodSignature, false);
+                                }
+                            // Only track instance field accesses in non-constructor
+                            } else if (opcode == Opcodes.GETFIELD && (!"<init>".equals(methodName))) {
                                 super.visitInsn(Opcodes.DUP);
                                 super.visitLdcInsn(name + owner);
                                 super.visitLdcInsn(lineNumber);
                                 super.visitLdcInsn(cn);
-                                super.visitMethodInsn(Opcodes.INVOKESTATIC, "edu/utexas/ece/tsvd4j/agent/Proxy", "putFieldVariables", proxyMethodSignature, false);
-                                super.visitInsn(Opcodes.DUP_X2);
-                                super.visitInsn(Opcodes.POP);
-                            } else {
-                                super.visitInsn(Opcodes.SWAP);
-                                super.visitInsn(Opcodes.DUP);
-                                super.visitLdcInsn(name + owner);
-                                super.visitLdcInsn(lineNumber);
-                                super.visitLdcInsn(cn);
-                                super.visitMethodInsn(Opcodes.INVOKESTATIC, "edu/utexas/ece/tsvd4j/agent/Proxy", "putFieldVariables", proxyMethodSignature, false);
-                                super.visitInsn(Opcodes.SWAP);
+                                String methodDescriptor = Type.getMethodDescriptor(Type.VOID_TYPE, new Type[] { Type.getMethodType(descriptor) });
+                                String proxyMethodSignature = "(Ljava/lang/Object;Ljava/lang/String;ILjava/lang/String;)V";
+                                super.visitMethodInsn(Opcodes.INVOKESTATIC, "edu/utexas/ece/tsvd4j/agent/Proxy", "getFieldVariables", proxyMethodSignature, false);
+                            // Only track instance field accesses in non-constructor
+                            } else if (opcode == Opcodes.PUTFIELD && (!"<init>".equals(methodName))) {
+                                String proxyMethodSignature = "(Ljava/lang/Object;Ljava/lang/String;ILjava/lang/String;)V";
+                                // Deal with multiple slots on top of stack if long or double
+                                if (descriptor.equals("J") || descriptor.equals("D")) {
+                                    super.visitInsn(Opcodes.DUP2_X1);
+                                    super.visitInsn(Opcodes.POP2);
+                                    super.visitInsn(Opcodes.DUP);
+                                    super.visitLdcInsn(name + owner);
+                                    super.visitLdcInsn(lineNumber);
+                                    super.visitLdcInsn(cn);
+                                    super.visitMethodInsn(Opcodes.INVOKESTATIC, "edu/utexas/ece/tsvd4j/agent/Proxy", "putFieldVariables", proxyMethodSignature, false);
+                                    super.visitInsn(Opcodes.DUP_X2);
+                                    super.visitInsn(Opcodes.POP);
+                                } else {
+                                    super.visitInsn(Opcodes.SWAP);
+                                    super.visitInsn(Opcodes.DUP);
+                                    super.visitLdcInsn(name + owner);
+                                    super.visitLdcInsn(lineNumber);
+                                    super.visitLdcInsn(cn);
+                                    super.visitMethodInsn(Opcodes.INVOKESTATIC, "edu/utexas/ece/tsvd4j/agent/Proxy", "putFieldVariables", proxyMethodSignature, false);
+                                    super.visitInsn(Opcodes.SWAP);
+                                }
                             }
                         }
-                    }
+					}
                     super.visitFieldInsn(opcode, owner, name, descriptor);
                 }
                 else
