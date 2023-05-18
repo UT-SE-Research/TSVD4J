@@ -33,7 +33,7 @@ do
     (
         cd $inputProj/$slug
         echo -n  "${slug}" >> $resultFile  #$currentDir/data_list/buildSucessProjectIdoftTSVDTime.csv
-        if [ ! -z ${initial_sha} ]; then
+        if [ ! -z ${initial_sha} ]; then # Checking if initial sha is empty or not
             git checkout ${initial_sha}
             echo -n ",${initial_sha}" >> $resultFile #$currentDir/data_list/buildSucessProjectIdoftTSVDTime.csv
             conflicting_pair_in_result="$resultFile-ConflictingPair-${name}_${initial_sha}"
