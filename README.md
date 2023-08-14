@@ -1,8 +1,11 @@
 # TSVD4J
 
-TSVD4J implements the TSVD approach for Java projects. See
-[here](https://github.com/microsoft/tsvd) for an implementation for C#
-projects.
+TSVD4J detects thread-safety violations for Java projects, which is based off of the [TSVD approach](https://github.com/microsoft/tsvd) with some extentions. 
+
+If you use this tool, please cite: Rahman, Shanto, Chengpeng Li, and August Shi. "TSVD4J: Thread-Safety Violation Detection 
+for Java."45th International Conference on Software Engineering (ICSE). IEEE, 2023.
+
+Our video demonstration of TSVD4J is available [here](https://www.youtube.com/watch?v=-wSMzlj5cMY).
 
 ### Automatically setting up the pom.xml for TSVD4J
 
