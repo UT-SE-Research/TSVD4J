@@ -14,7 +14,7 @@ mvn clean install
 ```
 
 ```shell
-cd script/
+cd scripts/
 ```
 
 Run the following command to automatically setup the pom.xml.
